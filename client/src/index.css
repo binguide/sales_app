@@ -1,0 +1,290 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 98%;
+    --foreground: 220 15% 20%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 15% 20%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 20%;
+    --primary: 239 84% 57%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 15% 30%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 10% 55%;
+    --accent: 239 84% 96%;
+    --accent-foreground: 239 84% 40%;
+    --destructive: 348 86% 56%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 152 60% 45%;
+    --success-foreground: 0 0% 100%;
+    --warning: 35 92% 55%;
+    --warning-foreground: 0 0% 100%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 239 84% 57%;
+    --radius: 0.5rem;
+    --sidebar: 0 0% 100%;
+    --sidebar-foreground: 220 15% 40%;
+    --sidebar-active: 239 84% 57%;
+    --sidebar-border: 220 13% 91%;
+    --header-height: 56px;
+    --sidebar-width: 240px;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: "Inter", "Cairo", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+  [dir="rtl"] body,
+  [dir="rtl"] {
+    font-family: "Cairo", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  [dir="ltr"] body,
+  [dir="ltr"] {
+    font-family: "Inter", "Cairo", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+}
+
+@layer components {
+  .app-layout {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    background: hsl(var(--background));
+  }
+
+  .app-sidebar {
+    width: var(--sidebar-width);
+    border-inline-end: 1px solid hsl(var(--sidebar-border));
+    background: hsl(var(--sidebar));
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  .app-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  .app-header {
+    height: var(--header-height);
+    border-bottom: 1px solid hsl(var(--border));
+    background: hsl(var(--background));
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .app-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 400;
+    color: hsl(var(--sidebar-foreground) / 0.8);
+    transition: all 0.15s ease;
+    text-decoration: none;
+    margin: 1px 8px;
+    line-height: 1.4;
+  }
+  .nav-item:hover {
+    background: hsl(var(--secondary));
+    color: hsl(var(--foreground));
+  }
+  .nav-item.active {
+    background: hsl(var(--accent));
+    color: hsl(var(--sidebar-active));
+    font-weight: 500;
+  }
+  .nav-item svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    opacity: 0.65;
+  }
+  .nav-item.active svg {
+    opacity: 1;
+  }
+
+  .nav-section {
+    padding: 12px 12px 4px;
+    font-size: 13px;
+    font-weight: 500;
+    color: hsl(var(--muted-foreground));
+    text-decoration: none;
+    border: none;
+    background: none;
+    font-family: inherit;
+    cursor: pointer;
+    width: 100%;
+    text-align: start;
+    box-sizing: border-box;
+  }
+  .nav-section:hover {
+    color: hsl(var(--foreground));
+  }
+  .nav-section svg {
+    opacity: 0.5;
+  }
+  .nav-section:hover svg {
+    opacity: 0.8;
+  }
+
+  .stat-card {
+    @apply rounded-xl border bg-card p-5 transition-shadow duration-200;
+  }
+  .stat-card:hover {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
+  }
+
+  .card-modern {
+    @apply rounded-xl border bg-card shadow-sm;
+  }
+
+  .page-title {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: hsl(var(--foreground));
+  }
+
+  .page-subtitle {
+    font-size: 14px;
+    color: hsl(var(--muted-foreground));
+    margin-top: 2px;
+  }
+
+  .table-modern th {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: hsl(var(--muted-foreground));
+    padding: 12px 16px;
+    border-bottom: 1px solid hsl(var(--border));
+  }
+
+  .table-modern td {
+    padding: 12px 16px;
+    border-bottom: 1px solid hsl(var(--border));
+    font-size: 14px;
+  }
+
+  .table-modern tr:last-child td {
+    border-bottom: none;
+  }
+
+  .table-modern tr:hover td {
+    background: hsl(var(--secondary) / 0.5);
+  }
+
+  .badge-modern {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.2);
+    border-radius: 99px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.4);
+  }
+
+  .pos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+    padding: 4px;
+  }
+
+  .pos-product-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 0 10px 0;
+    border-radius: 12px;
+    border: 1px solid hsl(var(--border));
+    background: hsl(var(--card));
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.15s ease;
+    min-height: 160px;
+    gap: 4px;
+    overflow: hidden;
+  }
+  .pos-product-card:hover {
+    box-shadow: 0 4px 12px hsl(var(--primary) / 0.15);
+    transform: translateY(-2px);
+    border-color: hsl(var(--primary) / 0.3);
+  }
+  .pos-product-card:active {
+    transform: translateY(0);
+  }
+  .pos-product-card.selected {
+    border-color: hsl(var(--primary));
+    background: hsl(var(--primary) / 0.05);
+    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2);
+  }
+  .pos-product-card.out-of-stock {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+  .pos-product-card .product-image {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 0;
+    flex-shrink: 0;
+  }
+
+  .pos-product-card .cat-strip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    border-radius: 12px 12px 0 0;
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "sales-app",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && node index.js",
+    "client": "cd client && npm.cmd run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}

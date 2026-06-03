@@ -572,7 +572,7 @@ export default function Products() {
                     <p className="text-lg font-bold text-primary mt-0.5">{fn(p.price)}</p>
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
                       <span>{t("common.quantity")}: <strong className="font-semibold">{fn0(p.quantity)}</strong></span>
-                      {p.is_service && <Wrench className="h-3 w-3" />}
+                      {!!p.is_service && <Wrench className="h-3 w-3" />}
                     </div>
                   </div>
                   <div className="flex flex-col gap-1 shrink-0">

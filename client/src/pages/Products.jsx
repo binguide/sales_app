@@ -553,59 +553,31 @@ export default function Products() {
           </Table>
         </CardContent></Card>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           {sorted.length === 0 ? (
             <div className="col-span-full text-center text-muted-foreground py-8">{t("common.noData")}</div>
           ) : sorted.map((p) => (
             <Card key={p.id}>
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    {p.image ? (
-                      <img src={p.image} alt="" className="w-12 h-12 rounded object-cover" />
-                    ) : (
-                      <div className="w-12 h-12 rounded bg-muted flex items-center justify-center">
-                        <Package className="h-5 w-5 text-muted-foreground" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEdit(p)}><Pencil className="h-3.5 w-3.5" /></Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => remove(p)}><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
-                  </div>
-                </div>
-                <p className="font-semibold truncate">{getName(p)}</p>
-                <p className="text-xs text-muted-foreground font-mono" dir="ltr">{p.barcode || "-"}</p>
-                <div className="mt-2 space-y-1 text-sm">
-                  {p.category_id && (
-                    <p className="text-muted-foreground truncate">
-                      <span className="w-2 h-2 rounded-full inline-block mr-1" style={{ backgroundColor: p.category_color }} />
-                      {getCatName(p)}
-                    </p>
-                  )}
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">{t("products.retailPrice")}:</span>
-                    <span className="font-mono font-medium">{fn(p.price)}</span>
-                  </div>
-                  {+p.wholesale_price > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">{t("products.wholesalePrice")}:</span>
-                      <span className="font-mono">{fn(p.wholesale_price)}</span>
+              <CardContent className="p-3">
+                <div className="flex gap-3">
+                  {p.image ? (
+                    <img src={p.image} alt="" className="w-14 h-14 rounded object-cover shrink-0" />
+                  ) : (
+                    <div className="w-14 h-14 rounded bg-muted flex items-center justify-center shrink-0">
+                      {p.is_service ? <Wrench className="h-5 w-5 text-muted-foreground" /> : <Package className="h-5 w-5 text-muted-foreground" />}
                     </div>
                   )}
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">{t("common.quantity")}:</span>
-                    <span className="font-mono">{fn0(p.quantity)}</span>
-                  </div>
-                  {+p.tax_rate > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">{t("common.vat")}:</span>
-                      <span>{p.tax_rate}%</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm leading-tight truncate">{getName(p)}</p>
+                    <p className="text-lg font-bold text-primary mt-0.5">{fn(p.price)}</p>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
+                      <span>{t("common.quantity")}: <strong className="font-semibold">{fn0(p.quantity)}</strong></span>
+                      {p.is_service && <Wrench className="h-3 w-3" />}
                     </div>
-                  )}
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">{t("common.type")}:</span>
-                    <span className="text-xs">{p.is_service ? t("products.service") : t("products.product")}</span>
+                  </div>
+                  <div className="flex flex-col gap-1 shrink-0">
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => startEdit(p)}><Pencil className="h-3.5 w-3.5" /></Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => remove(p)}><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
                   </div>
                 </div>
               </CardContent>

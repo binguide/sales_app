@@ -34,6 +34,7 @@ import Units from "@/pages/Units";
 import TrialBalance from "@/pages/TrialBalance";
 import BalanceSheet from "@/pages/BalanceSheet";
 import IncomeStatement from "@/pages/IncomeStatement";
+import CashFlow from "@/pages/CashFlow";
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -80,7 +81,8 @@ function AppRoutes() {
               <Route path="/landed-costs" element={<LandedCosts />} />
               <Route path="/reports/trial-balance" element={<TrialBalance />} />
               <Route path="/reports/balance-sheet" element={<BalanceSheet />} />
-              <Route path="/reports/income-statement" element={<IncomeStatement />} />
+               <Route path="/reports/income-statement" element={<IncomeStatement />} />
+               <Route path="/reports/cash-flow" element={<CashFlow />} />
             </Routes>
           </Layout>
         </ProtectedRoute>

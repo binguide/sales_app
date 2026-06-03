@@ -2122,6 +2122,125 @@ app.get("/api/reports/income-statement", (req, res) => {
   res.json({ income, expenses, totals: { total_income: totalIncome, total_expenses: totalExpenses, net_income: netIncome } });
 });
 
+// Cash Flow Statement
+app.get("/api/reports/cash-flow", (req, res) => {
+  const { from, to } = req.query;
+  const params = [];
+  const dateFilter = [];
+  if (from) { dateFilter.push("AND je.date >= ?"); params.push(from); }
+  if (to) { dateFilter.push("AND je.date <= ?"); params.push(to); }
+
+  const cashAcc = get("SELECT id FROM accounts WHERE code = '1-1-1'");
+  const bankAcc = get("SELECT id FROM accounts WHERE code = '1-1-2'");
+  if (!cashAcc && !bankAcc) {
+    return res.json({ opening: 0, closing: 0, inflows: [], outflows: [], total_inflows: 0, total_outflows: 0, net_change: 0 });
+  }
+  const cashIds = [cashAcc?.id, bankAcc?.id].filter(Boolean);
+
+  // Helper: build SQL with parameterized cash IDs
+  const cashPlaceholders = cashIds.map(() => "?").join(",");
+
+  // Opening balance (before the period)
+  let openingBalance = 0;
+  if (from) {
+    const openParams = [...cashIds, from];
+    const row = get(`SELECT COALESCE(SUM(jei.debit - jei.credit), 0) as balance
+      FROM journal_entry_items jei
+      JOIN journal_entries je ON jei.journal_entry_id = je.id
+      WHERE jei.account_id IN (${cashPlaceholders}) AND je.date < ?`, openParams);
+    openingBalance = row ? row.balance : 0;
+  }
+
+  // Closing balance (up to end of period)
+  const closeParams = to ? [...cashIds, to] : cashIds;
+  const closeSql = to
+    ? `SELECT COALESCE(SUM(jei.debit - jei.credit), 0) as balance FROM journal_entry_items jei JOIN journal_entries je ON jei.journal_entry_id = je.id WHERE jei.account_id IN (${cashPlaceholders}) AND je.date <= ?`
+    : `SELECT COALESCE(SUM(jei.debit - jei.credit), 0) as balance FROM journal_entry_items jei WHERE jei.account_id IN (${cashPlaceholders})`;
+  const closingRow = get(closeSql, closeParams);
+  const closingBalance = closingRow ? closingRow.balance : 0;
+
+  // Get journal entries involving cash accounts during period
+  const allParams = [...cashIds, ...params];
+  const items = all(`SELECT jei.id, jei.journal_entry_id, jei.debit, jei.credit, jei.account_id,
+       je.date, je.description, je.description_en
+    FROM journal_entry_items jei
+    JOIN journal_entries je ON jei.journal_entry_id = je.id
+    WHERE jei.account_id IN (${cashPlaceholders})
+    ${dateFilter.join(' ')}
+    ORDER BY je.date, jei.id`, allParams);
+
+  // Get contra lines for same journal entries
+  const entryIds = [...new Set(items.map(r => r.journal_entry_id))];
+  let contraLines = [];
+  if (entryIds.length > 0) {
+    const ePlaceholders = entryIds.map(() => "?").join(",");
+    contraLines = all(`SELECT jei.*, a.code as acc_code, a.name as acc_name, a.name_en as acc_name_en, a.type as acc_type
+      FROM journal_entry_items jei
+      JOIN accounts a ON jei.account_id = a.id
+      WHERE jei.journal_entry_id IN (${ePlaceholders})
+      AND jei.account_id NOT IN (${cashPlaceholders})`, [...entryIds, ...cashIds]);
+  }
+
+  // Categorize cash movements
+  const categories = [
+    { key: "cash_from_sales", ar: "إيرادات المبيعات النقدية", en: "Cash from Sales", type: "inflow" },
+    { key: "customer_collections", ar: "تحصيلات من العملاء", en: "Customer Collections", type: "inflow" },
+    { key: "other_receipts", ar: "مقبوضات أخرى", en: "Other Receipts", type: "inflow" },
+    { key: "cash_paid_purchases", ar: "مشتريات نقدية", en: "Cash Paid for Purchases", type: "outflow" },
+    { key: "supplier_payments", ar: "مدفوعات للموردين", en: "Supplier Payments", type: "outflow" },
+    { key: "expenses_paid", ar: "مصروفات نقدية", en: "Cash Paid for Expenses", type: "outflow" },
+    { key: "other_payments", ar: "مدفوعات أخرى", en: "Other Payments", type: "outflow" },
+  ];
+
+  const totals = { cash_from_sales: 0, customer_collections: 0, other_receipts: 0,
+    cash_paid_purchases: 0, supplier_payments: 0, expenses_paid: 0, other_payments: 0 };
+
+  for (const item of items) {
+    const amount = item.debit || item.credit;
+    if (amount === 0) continue;
+
+    const related = contraLines.filter(c => c.journal_entry_id === item.journal_entry_id);
+    let cat = item.debit > 0 ? "other_receipts" : "other_payments";
+
+    if (item.debit > 0) {
+      for (const c of related) {
+        if (c.acc_type === "income") { cat = "cash_from_sales"; break; }
+        if (c.acc_code && c.acc_code.startsWith("1-1-3")) { cat = "customer_collections"; break; }
+      }
+    } else {
+      for (const c of related) {
+        if (c.acc_type === "expense") { cat = "expenses_paid"; break; }
+        if (c.acc_code && (c.acc_code === "1-1-4" || c.acc_code.startsWith("1-1-3"))) { cat = "cash_paid_purchases"; break; }
+        if (c.acc_code && c.acc_code.startsWith("2-1-1")) { cat = "supplier_payments"; break; }
+      }
+    }
+    totals[cat] += amount;
+  }
+
+  const totalInflows = totals.cash_from_sales + totals.customer_collections + totals.other_receipts;
+  const totalOutflows = totals.cash_paid_purchases + totals.supplier_payments + totals.expenses_paid + totals.other_payments;
+  const netChange = totalInflows - totalOutflows;
+
+  res.json({
+    opening: openingBalance,
+    closing: closingBalance,
+    inflows: [
+      { key: "cash_from_sales", ar: "إيرادات المبيعات النقدية", en: "Cash from Sales", amount: totals.cash_from_sales },
+      { key: "customer_collections", ar: "تحصيلات من العملاء", en: "Customer Collections", amount: totals.customer_collections },
+      { key: "other_receipts", ar: "مقبوضات أخرى", en: "Other Receipts", amount: totals.other_receipts },
+    ],
+    outflows: [
+      { key: "cash_paid_purchases", ar: "مشتريات نقدية", en: "Cash Paid for Purchases", amount: totals.cash_paid_purchases },
+      { key: "supplier_payments", ar: "مدفوعات للموردين", en: "Supplier Payments", amount: totals.supplier_payments },
+      { key: "expenses_paid", ar: "مصروفات نقدية", en: "Cash Paid for Expenses", amount: totals.expenses_paid },
+      { key: "other_payments", ar: "مدفوعات أخرى", en: "Other Payments", amount: totals.other_payments },
+    ],
+    total_inflows: totalInflows,
+    total_outflows: totalOutflows,
+    net_change: netChange,
+  });
+});
+
 // Bulk delete endpoints
 app.post("/api/products/bulk-delete", (req, res) => {
   transaction(() => { for (const id of req.body.ids) { run("DELETE FROM warehouse_stock WHERE product_id=?", [id]); run("DELETE FROM sale_items WHERE product_id=?", [id]); run("DELETE FROM purchase_items WHERE product_id=?", [id]); run("DELETE FROM product_units WHERE product_id=?", [id]); run("DELETE FROM products WHERE id=?", [id]); } });

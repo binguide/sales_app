@@ -226,6 +226,10 @@ const en = {
     title: "Income Statement", subtitle: "View revenues, expenses & net income",
     balance: "Balance",
   },
+  cashFlow: {
+    title: "Cash Flow Statement", subtitle: "View cash inflows and outflows",
+    type: "Type",
+  },
   journal: {
     title: "Journal Entries", subtitle: "Record & view journal entries",
     add: "Add Entry", view: "View Entry", delete: "Delete Entry",

@@ -185,6 +185,7 @@ export const api = {
   getTrialBalance: (params) => request(`/reports/trial-balance${params ? `?${new URLSearchParams(params)}` : ""}`),
   getBalanceSheet: (params) => request(`/reports/balance-sheet${params ? `?${new URLSearchParams(params)}` : ""}`),
   getIncomeStatement: (params) => request(`/reports/income-statement${params ? `?${new URLSearchParams(params)}` : ""}`),
+  getCashFlow: (params) => request(`/reports/cash-flow${params ? `?${new URLSearchParams(params)}` : ""}`),
 
   // Landed Cost Vouchers
   getLandedCosts: (params) => request(`/landed-costs${params ? `?${new URLSearchParams(params)}` : ""}`),

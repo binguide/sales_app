@@ -72,6 +72,7 @@ const navSections = [
     { to: "/reports/trial-balance", labelAr: "ميزان المراجعة", labelEn: "Trial Balance", icon: BookOpen },
     { to: "/reports/balance-sheet", labelAr: "قائمة المركز المالي", labelEn: "Balance Sheet", icon: BarChart3 },
     { to: "/reports/income-statement", labelAr: "قائمة الدخل", labelEn: "Income Statement", icon: TrendingUp },
+    { to: "/reports/cash-flow", labelAr: "قائمة التدفقات النقدية", labelEn: "Cash Flow Statement", icon: Wallet },
   ],
 },
   {

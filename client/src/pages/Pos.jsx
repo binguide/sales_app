@@ -576,17 +576,19 @@ export default function Pos() {
                       ) : (
                         <img src="/no-image.svg" alt={pName} className="product-image" />
                       )}
-                      <span className="text-xs font-semibold text-center leading-tight line-clamp-2 px-1.5">{pName}</span>
-                      <span className="text-sm font-bold text-primary px-1.5">{fn(pPrice)}</span>
-                      {allowNeg ? (p.quantity > 0 && p.quantity <= 5 && (
-                        <Badge variant="secondary" className="text-[10px] px-1.5 py-0">{fn0(p.quantity)}</Badge>
-                      )) : (p.quantity <= 5 && (
-                        <Badge variant={p.quantity === 0 ? "destructive" : "secondary"} className="text-[10px] px-1.5 py-0">
-                          {p.quantity === 0 ? t("dashboard.outOfStock") : fn0(p.quantity)}
-                        </Badge>
-                      ))}
+                      <span className="text-[11px] font-medium text-center leading-tight truncate w-full px-1">{pName}</span>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs font-bold text-primary">{fn(pPrice)}</span>
+                        {allowNeg ? (p.quantity > 0 && p.quantity <= 5 && (
+                          <Badge variant="secondary" className="text-[9px] px-1 py-0 h-4">{fn0(p.quantity)}</Badge>
+                        )) : (p.quantity <= 5 && (
+                          <Badge variant={p.quantity === 0 ? "destructive" : "secondary"} className="text-[9px] px-1 py-0 h-4">
+                            {p.quantity === 0 ? t("dashboard.outOfStock") : fn0(p.quantity)}
+                          </Badge>
+                        ))}
+                      </div>
                       {inCart && (
-                        <CheckCircle className="absolute top-2 right-2 h-4 w-4 text-primary" />
+                        <CheckCircle className="absolute top-1.5 right-1.5 h-3.5 w-3.5 text-primary" />
                       )}
                     </button>
                   );
